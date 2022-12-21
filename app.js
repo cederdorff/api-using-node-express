@@ -23,8 +23,8 @@ app.use(
 
 //==> det vigtige begynder her
 
-app.get("/", (req, res) => {
-    res.send("Node Express Users API! Read users at http://localhost:3000/users");
+app.get("/", (request, response) => {
+    response.send("Node Express Users API! Read users at http://localhost:3000/users"); // det her vises hvis du kører http://localhost:3000 i browser. Vi bruger den som sådan ikke til noget :)
 });
 
 // READ: read all users from data
@@ -57,24 +57,28 @@ app.post("/users", (request, response) => {
 });
 
 // UPDATE: update existing user
-app.put("/users/:id", (req, res) => {
-    const id = req.params.id;
-    const userData = req.body;
-    let user = data.find(item => item.id == id);
-    user.name = userData.name;
-    user.title = userData.title;
-    user.mail = userData.mail;
+// PUT request som anvendes til at opdatere en eksisterende bruger
+// Dette gøres på baggrund af id og de nye opdaterede informationer om brugeren.
+app.put("/users/:id", (request, response) => {
+    const id = request.params.id; // tager id fra url'en, så det kan anvendes til at finde den givne bruger med "det" id.
+    const userData = request.body; // læser det nye userData som kommer fra en frontend - det er det data der skal bruges til at opdatere en eksisterende bruger
+    let user = data.users.find(item => item.id == id); // finder bruger med de givne id
+    user.firstName = userData.firstName; // ændrer alle brugerens properties med de "nye" fra frontend
+    user.lastName = userData.lastName;
     user.image = userData.image;
-    return res.json(data);
+    user.age = userData.age;
+    user.email = userData.email;
+    user.gender = userData.gender;
+    return response.json(data); // efter at have opdateret bruger, returneres det nye opdaterede data (med brugerene) tilbage til frontenden
 });
 
 // DELETE: delete user
-app.delete("/users/:id", (req, res) => {
-    const id = req.params.id;
-    data = data.filter(item => item.id != id);
-    return res.json(data);
+app.delete("/users/:id", (request, response) => {
+    const id = request.params.id; // tager id fra url'en, så det kan anvendes til at finde den givne bruger der skal slettes
+    data.users = data.users.filter(item => item.id != id); // data.users ændres, så array indeholder alle de brugere, der ikke har det id, som brugeren har du vil slette. Det er lidt omvendt logik, men i praksis giver det et nyt array hvor den bruger du vil slette ikke er der.
+    return response.json(data); // efter at have slettet bruger, returneres det nye opdaterede data tilbage til frontenden
 });
 
 app.listen(port, () => {
-    console.log(`Node.js REST API listening at http://localhost:${port}`);
+    console.log(`Node.js REST API listening at http://localhost:${port}`); // blot en "servicebesked" man kan se i loggen, så vi ved backenden kører.
 });
